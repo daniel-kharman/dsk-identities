@@ -1,1 +1,5 @@
-Data/
+# Ignore the folder containing dynamic, machine-generated input files.
+/Data/Input/
+
+# Ignore the final Excel audit report. This is an output artifact and should
+/Data/*.xlsx

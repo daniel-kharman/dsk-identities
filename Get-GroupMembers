@@ -1,0 +1,35 @@
+function exportGroupsAndMembers() {
+  const spreadsheet = SpreadsheetApp.create('Google Workspace Groups and Members');
+  const sheet = spreadsheet.getActiveSheet();
+  sheet.appendRow(['Group Email', 'Group Name', 'Member Email', 'Member Type']);
+  
+  let pageToken;
+  do {
+    const groupPage = AdminDirectory.Groups.list({
+      domain: 'homeprotech.com',
+      pageToken: pageToken
+    });
+    
+    const groups = groupPage.groups;
+    if (groups) {
+      groups.forEach(group => {
+        let memberPageToken;
+        do {
+          const membersPage = AdminDirectory.Members.list(group.email, {
+            pageToken: memberPageToken
+          });
+          const members = membersPage.members;
+          if (members) {
+            members.forEach(member => {
+              sheet.appendRow([group.email, group.name, member.email, member.type]);
+            });
+          }
+          memberPageToken = membersPage.nextPageToken;
+        } while (memberPageToken);
+      });
+    }
+    pageToken = groupPage.nextPageToken;
+  } while (pageToken);
+
+  Logger.log('Data exported to a new Google Sheet: ' + spreadsheet.getUrl());
+}
